@@ -10,8 +10,8 @@ AssetOrigin:
 ShaderImporter:
   externalObjects: {}
   defaultTextures:
-  - _Normal1: {fileID: 2800000, guid: d2eac888094a652429c634df007d9ad9, type: 3}
-  - _Normal2: {fileID: 2800000, guid: fccc6818be225674382d96933708d421, type: 3}
+  - _Normal1: {instanceID: 0}
+  - _Normal2: {instanceID: 0}
   nonModifiableTextures: []
   userData: 
   assetBundleName: 

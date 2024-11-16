@@ -16,14 +16,16 @@ public class PlayerMechanic : MonoBehaviour
     [SerializeField] float upSpeed = 0.01f;
     float _initialSpeed;
     float _initialUpSpeed;
+    bool inPush;
 
     Vector2 _movement;
     Rigidbody _rb;
     bool invincible;
-    bool pauseGame;
+    bool pauseGame = false;
 
     [Space(20)]
     [SerializeField] float scaleChange;
+    [SerializeField] AudioSource audioBubble;
 
     #region Events
     public delegate void PlayerDamage(float currentHealth, float maxHealth);
@@ -48,6 +50,26 @@ public class PlayerMechanic : MonoBehaviour
     {        
         _rb.linearVelocity = new Vector3(_movement.x * speed, upSpeed, 0);
         DownScale();
+
+        if (!pauseGame)
+        {
+            //this is to create an acceleration effect
+            if (inPush)
+            {
+                upSpeed += Time.deltaTime;
+            }
+            else
+            {
+                if (upSpeed <= _initialUpSpeed)
+                {
+                    upSpeed = _initialUpSpeed;
+                }
+                else
+                {
+                    upSpeed -= Time.deltaTime * 3;
+                }
+            }
+        }
     }
 
     public void SetInputDirection(InputAction.CallbackContext value)
@@ -65,6 +87,7 @@ public class PlayerMechanic : MonoBehaviour
                 speed += 0.1f;
                 transform.localScale -= new Vector3(0.1f, 0.1f, 0.1f);
                 _rb.AddForce(0, speed * 5, 0, ForceMode.Impulse);
+                audioBubble.Play();
                 StartCoroutine(InvincibleTime());
 
                 //Call the event in UI
@@ -87,6 +110,7 @@ public class PlayerMechanic : MonoBehaviour
             if(heath > 0 && transform.localScale.x > 0.1)
             {
                 heath--;
+                audioBubble.Play();
                 StartCoroutine(InvincibleTime());
 
                 transform.localScale -= new Vector3(0.1f, 0.1f, 0.1f);
@@ -108,6 +132,7 @@ public class PlayerMechanic : MonoBehaviour
                 }
             }
         }
+
         if (other.CompareTag("Finish"))
         {
             if (playerWinGame != null)
@@ -115,23 +140,18 @@ public class PlayerMechanic : MonoBehaviour
                 playerWinGame();
             }
         }
+
         if (other.CompareTag("PushUP"))
         {
-            upSpeed = _initialUpSpeed;
-            upSpeed = upSpeed * 5;
+            //upSpeed = upSpeed * 5;
+            inPush = true;
         }
     }
-    
     void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("PushUP"))
         {
-            upSpeed--;
-            upSpeed -= Time.deltaTime * 5;
-            if (upSpeed <= _initialUpSpeed)
-            {
-                upSpeed = _initialUpSpeed;
-            }
+            inPush = false;
         }
     }
 

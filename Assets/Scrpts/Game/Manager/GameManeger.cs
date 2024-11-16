@@ -8,16 +8,17 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
+    #region Pooling References
+
     #region Bubbles Pooling
     [Header("Bubbles Pooling")]
     public GameObject[] bubblesPrefabs;
     public int bubblesAmount;
-    List<GameObject> bubblesInstances = new List<GameObject>();
-    public List<Transform> positions = new List<Transform>();
+    public List<GameObject> bubblesInstances = new List<GameObject>();
     #endregion
 
     #region Fish Pooling
-    [Space(30)]
+    [Space(10)]
     [Header("Fish Pooling")]
     public GameObject[] fishPrefabs;
     public int fishAmount;
@@ -26,11 +27,21 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Turtle and StingRay Pooling
-    [Space(30)]
+    [Space(10)]
     [Header("Turtle and StingRay Pooling")]
     public GameObject[] tsPrefabs;
     public int tsAmount;
     public List<GameObject> tsInstances = new List<GameObject>();
+    #endregion
+
+    #region Pushes Pooling
+    [Space(10)]
+    [Header("Pushes Pooling")]
+    public GameObject[] pushPrefab;
+    public int pushAmount;
+    public List<GameObject> pushInstances = new List<GameObject>();
+    #endregion
+
     #endregion
 
     #region Events
@@ -47,6 +58,7 @@ public class GameManager : MonoBehaviour
 
 
     [SerializeField] int phaseNumber;
+    [SerializeField] AudioSource audioGameOver;
     int savedValue;
 
     void Awake()
@@ -56,7 +68,6 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        SpawnBubbles();
         savedValue = PlayerPrefs.GetInt("Unlocked Phase");
     }
 
@@ -96,17 +107,18 @@ public class GameManager : MonoBehaviour
                 tsInstances.Add(instance);
             }
         }
-    }
 
-    public void SpawnBubbles()
-    {
-        for(int i = bubblesInstances.Count - 1; i >= 0;i--)
+        for (int i = pushPrefab.Length - 1; i >= 0; i--)
         {
-            bubblesInstances[i].transform.position = positions[i].position;
-            bubblesInstances[i].SetActive(true);
+            for (int j = pushAmount; j >= 0; j--)
+            {
+                GameObject instance = Instantiate(pushPrefab[i]);
+                instance.SetActive(false);
+                pushInstances.Add(instance);
+            }
         }
-    }
 
+    }
     public void PauseGame()
     {
         if(Input.GetKeyDown(KeyCode.Escape))
@@ -120,6 +132,7 @@ public class GameManager : MonoBehaviour
     public void OnGameOver()
     {
         //implement the rest of the logic ---> save score??
+        audioGameOver.Play();
     }
 
     public void OnWinGame()
@@ -130,7 +143,6 @@ public class GameManager : MonoBehaviour
         if (phaseNumber >= savedValue)
         {
             PlayerPrefs.SetInt("Unlocked Fase", phaseNumber);
-            Debug.Log("Unlocked Fase" + phaseNumber);
         }
     }
 
